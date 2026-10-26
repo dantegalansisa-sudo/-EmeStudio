@@ -3,7 +3,8 @@ import { motion, useScroll, useTransform } from 'framer-motion';
 import { EASE, scrollToId } from '../utils';
 import { Icon, Magnetic, RevealText } from './ui';
 import { useStore } from '../store';
-import { byId } from '../data/products';
+import { FEATURED_PROMO, byId, promoProduct, savings } from '../data/catalog';
+import type { CSSProperties } from 'react';
 import { money } from '../data/site';
 
 /* Partículas de "polvo" — evocan el Volume Powder en el aire */
@@ -80,6 +81,8 @@ export default function Hero({ ready }: { ready: boolean }) {
   const ref = useRef<HTMLElement>(null);
   const { add, openSheet } = useStore();
   const powder = byId('volume-powder');
+  const promo = FEATURED_PROMO;
+  const promoP = promo ? promoProduct(promo) : null;
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] });
   const scale = useTransform(scrollYProgress, [0, 1], [1.05, 1.28]);
   const imgY = useTransform(scrollYProgress, [0, 1], ['0%', '14%']);
@@ -142,29 +145,55 @@ export default function Hero({ ready }: { ready: boolean }) {
         </div>
       </motion.div>
 
-      {/* Chip flotante del producto estrella */}
-      <motion.div
-        className="hero__chip"
-        initial={{ opacity: 0, y: 20, scale: 0.94 }}
-        animate={ready ? { opacity: 1, y: 0, scale: 1 } : undefined}
-        transition={{ delay: 1.4, duration: 0.9, ease: EASE.out }}
-      >
-        <button className="hero__chip-main" onClick={() => openSheet(powder.id)}>
-          <img src={powder.images[0]} alt="" />
+      {/* Especial activo de la temporada (viene del panel); si no hay, el producto estrella */}
+      {promo && promoP ? (
+        <motion.button
+          className="hero__promo"
+          style={{ '--p-bg': promo.theme.bg, '--p-fg': promo.theme.fg, '--p-accent': promo.theme.accent } as CSSProperties}
+          onClick={() => scrollToId('especiales')}
+          initial={{ opacity: 0, y: 24, scale: 0.94 }}
+          animate={ready ? { opacity: 1, y: 0, scale: 1 } : undefined}
+          transition={{ delay: 1.4, duration: 0.9, ease: EASE.out }}
+        >
+          <img src={promo.image} alt="" />
           <span>
-            <small className="mono">Bestseller</small>
-            <strong>{powder.name}</strong>
-            <em>{money(powder.price)}</em>
+            <small className="mono">
+              {promo.badge} · -{savings(promoP)}%
+            </small>
+            <strong>{promo.name}</strong>
+            <em>
+              {money(promoP.price)}
+              <s>{money(promoP.compareAt!)}</s>
+            </em>
           </span>
-        </button>
-        <button className="hero__chip-add" onClick={() => add(powder.id)} aria-label="Añadir Volume Powder al carrito">
-          <Icon.Plus />
-        </button>
-      </motion.div>
+          <i className="hero__promo-go">
+            <Icon.Arrow />
+          </i>
+        </motion.button>
+      ) : (
+        <motion.div
+          className="hero__chip"
+          initial={{ opacity: 0, y: 20, scale: 0.94 }}
+          animate={ready ? { opacity: 1, y: 0, scale: 1 } : undefined}
+          transition={{ delay: 1.4, duration: 0.9, ease: EASE.out }}
+        >
+          <button className="hero__chip-main" onClick={() => openSheet(powder.id)}>
+            <img src={powder.images[0]} alt="" />
+            <span>
+              <small className="mono">Bestseller</small>
+              <strong>{powder.name}</strong>
+              <em>{money(powder.price)}</em>
+            </span>
+          </button>
+          <button className="hero__chip-add" onClick={() => add(powder.id)} aria-label="Añadir Volume Powder al carrito">
+            <Icon.Plus />
+          </button>
+        </motion.div>
+      )}
 
       {/* Sello giratorio */}
       <motion.div
-        className="hero__seal"
+        className={`hero__seal ${promo ? 'hero__seal--promo' : ''}`}
         initial={{ opacity: 0, rotate: -40 }}
         animate={ready ? { opacity: 1, rotate: 0 } : undefined}
         transition={{ delay: 1.3, duration: 1.2, ease: EASE.out }}

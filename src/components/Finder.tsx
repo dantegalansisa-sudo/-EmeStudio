@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { byId } from '../data/products';
+import { byId } from '../data/catalog';
 import { money } from '../data/site';
 import { useStore } from '../store';
 import { EASE } from '../utils';

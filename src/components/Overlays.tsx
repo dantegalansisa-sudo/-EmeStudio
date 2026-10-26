@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion, useDragControls } from 'framer-motion';
 import { useStore } from '../store';
-import { byId } from '../data/products';
+import { byId } from '../data/catalog';
 import { SITE, money, whatsappLink } from '../data/site';
 import { EASE, lockScroll, useMedia } from '../utils';
 import { Icon, Meter } from './ui';

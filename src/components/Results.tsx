@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
-import { byId } from '../data/products';
+import { byId } from '../data/catalog';
 import { useStore } from '../store';
 import { useMedia } from '../utils';
 import { AutoVideo, FadeUp, RevealText } from './ui';

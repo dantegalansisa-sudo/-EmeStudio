@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { PRODUCTS, byId, type Category, type Product } from '../data/products';
+import { type Category, type Product } from '../data/products';
+import { BUNDLES, SHOP as PRODUCTS, byId } from '../data/catalog';
 import { money } from '../data/site';
 import { useStore } from '../store';
 import { EASE } from '../utils';
 import { FadeUp, Icon, Magnetic, RevealText } from './ui';
 
-const FILTERS: { id: 'all' | Category; label: string }[] = [
+type Filter = 'all' | 'ofertas' | Category;
+const FILTERS: { id: Filter; label: string }[] = [
   { id: 'all', label: 'Todo' },
+  { id: 'ofertas', label: 'Ofertas' },
   { id: 'styling', label: 'Styling' },
   { id: 'rizos', label: 'Rizos' },
   { id: 'herramientas', label: 'Herramientas' },
@@ -58,7 +61,7 @@ function Card({ p, i }: { p: Product; i: number }) {
       <div className="card__media">
         <img src={p.images[0]} alt={p.name} loading="lazy" />
         {p.images[1] && <img className="card__alt" src={p.images[1]} alt="" loading="lazy" />}
-        {p.tag && <span className="card__tag mono">{p.tag}</span>}
+        {p.tag && <span className={`card__tag mono ${p.promoId ? 'card__tag--promo' : ''}`}>{p.tag}</span>}
         <span className="card__index mono">0{i + 1}</span>
       </div>
       <div className="card__body">
@@ -71,7 +74,10 @@ function Card({ p, i }: { p: Product; i: number }) {
           </span>
         </div>
         <div className="card__buy">
-          <strong>{money(p.price)}</strong>
+          <span className="card__price">
+            <strong>{money(p.price)}</strong>
+            {p.compareAt && <s>{money(p.compareAt)}</s>}
+          </span>
           <AddButton id={p.id} />
         </div>
       </div>
@@ -80,9 +86,12 @@ function Card({ p, i }: { p: Product; i: number }) {
 }
 
 export default function Collection() {
-  const [filter, setFilter] = useState<'all' | Category>('all');
+  const [filter, setFilter] = useState<Filter>('all');
   const { openSheet } = useStore();
-  const items = PRODUCTS.filter((p) => p.category !== 'kits' && (filter === 'all' || p.category === filter));
+  const items =
+    filter === 'ofertas'
+      ? [...PRODUCTS.filter((p) => p.compareAt), ...BUNDLES]
+      : PRODUCTS.filter((p) => p.category !== 'kits' && (filter === 'all' || p.category === filter));
   const kit = byId('kit-eme');
 
   return (

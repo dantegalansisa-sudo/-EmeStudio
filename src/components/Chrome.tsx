@@ -3,7 +3,7 @@ import { AnimatePresence, motion, useMotionValueEvent, useScroll } from 'framer-
 import { useStore } from '../store';
 import { EASE, lockScroll, scrollToId } from '../utils';
 import { Icon, Logo } from './ui';
-import { PRODUCTS } from '../data/products';
+import { ACTIVE_PROMOS, SHOP as PRODUCTS } from '../data/catalog';
 import { SITE, whatsappLink } from '../data/site';
 
 /* ---------- Preloader ---------- */
@@ -49,6 +49,7 @@ export function Preloader({ onDone }: { onDone: () => void }) {
 
 /* ---------- Header ---------- */
 const NAV = [
+  { id: 'especiales', label: 'Especiales', hot: true },
   { id: 'coleccion', label: 'Tienda' },
   { id: 'rutina', label: 'Rutina' },
   { id: 'resultados', label: 'Resultados' },
@@ -83,12 +84,13 @@ function NavLinks({ items, offset, active }: { items: typeof NAV; offset: number
   return (
     <nav className="header__nav" aria-label="Principal">
       {items.map((n, i) => (
-        <button key={n.id} onClick={() => scrollToId(n.id)} className={`header__link ${active === n.id ? 'is-active' : ''}`}>
+        <button key={n.id} onClick={() => scrollToId(n.id)} className={`header__link ${active === n.id ? 'is-active' : ''} ${n.hot ? 'header__link--hot' : ''}`}>
           {active === n.id && <motion.span layoutId="nav-pill" className="header__pill" transition={{ type: 'spring', stiffness: 380, damping: 32 }} />}
           <sup className="mono">0{offset + i + 1}</sup>
           <span className="roll">
             <span data-text={n.label}>{n.label}</span>
           </span>
+          {n.hot && ACTIVE_PROMOS.length > 0 && <b className="header__hot">{ACTIVE_PROMOS.length}</b>}
         </button>
       ))}
     </nav>
@@ -189,6 +191,7 @@ function MobileMenu() {
                 >
                   <span className="mono">0{i + 1}</span>
                   {n.label}
+                  {n.hot && <em className="menu__hot mono">{ACTIVE_PROMOS.length} activos</em>}
                 </motion.button>
               </li>
             ))}

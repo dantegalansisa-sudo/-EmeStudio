@@ -6,6 +6,7 @@ import { Header, Preloader } from './components/Chrome';
 import Hero from './components/Hero';
 import MobileHero from './components/MobileHero';
 import Manifesto from './components/Manifesto';
+import Specials from './components/Specials';
 import Collection from './components/Collection';
 import Spotlight from './components/Spotlight';
 import Finder from './components/Finder';
@@ -28,6 +29,7 @@ export default function App() {
       <Header />
       <main>
         {mobile ? <MobileHero ready={!loading} /> : <Hero ready={!loading} />}
+        <Specials />
         <Manifesto />
         <Collection />
         <Spotlight />

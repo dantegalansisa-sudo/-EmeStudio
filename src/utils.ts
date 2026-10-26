@@ -28,3 +28,19 @@ export function useMedia(query: string) {
   }, [query]);
   return match;
 }
+
+export function useCountdown(target: string) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const diff = Math.max(0, new Date(target).getTime() - now);
+  return {
+    d: Math.floor(diff / 864e5),
+    h: Math.floor((diff / 36e5) % 24),
+    m: Math.floor((diff / 6e4) % 60),
+    s: Math.floor((diff / 1e3) % 60),
+    done: diff === 0,
+  };
+}

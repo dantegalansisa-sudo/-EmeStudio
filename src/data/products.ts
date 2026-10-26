@@ -21,6 +21,7 @@ export interface Product {
   benefits: string[];
   howTo: string[];
   accent: string;
+  promoId?: string; // especial que afecta este producto
 }
 
 const m = (f: string) => `/media/${f}`;
@@ -117,11 +118,10 @@ export const PRODUCTS: Product[] = [
     finish: 'Completo',
     hold: 5,
     shine: 2,
-    images: [m('kit-bag.webp'), m('kit-curl-powder.webp')],
+    images: [m('kit-curl-powder.webp'), m('kit-bag.webp')],
     benefits: ['Volume Powder 20 g', 'Clay Wax 80 g', 'Curl Cream 250 ml', 'Peinilla EME + bolsa oficial'],
     howTo: ['Escoge el producto según tu look del día.', 'Combina Powder + Clay para volumen con control.', 'Usa Curl Cream en días de rizo libre.'],
     accent: '#0B0D12',
   },
 ];
 
-export const byId = (id: string) => PRODUCTS.find((p) => p.id === id)!;

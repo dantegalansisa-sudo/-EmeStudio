@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { EVENT, SITE, whatsappLink } from '../data/site';
-import { EASE } from '../utils';
+import { EASE, useCountdown } from '../utils';
 import { AutoVideo, Counter, FadeUp, Icon, Magnetic, RevealText } from './ui';
 
 /* ---------- Comunidad: video que se expande con el scroll ---------- */
@@ -37,22 +37,6 @@ export function Community() {
 }
 
 /* ---------- Evento: Barber Stage SJBS ---------- */
-function useCountdown(target: string) {
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    const t = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(t);
-  }, []);
-  const diff = Math.max(0, new Date(target).getTime() - now);
-  return {
-    d: Math.floor(diff / 864e5),
-    h: Math.floor((diff / 36e5) % 24),
-    m: Math.floor((diff / 6e4) % 60),
-    s: Math.floor((diff / 1e3) % 60),
-    done: diff === 0,
-  };
-}
-
 function gcalLink() {
   const fmt = (d: Date) => d.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
   const start = new Date(EVENT.startsAt);

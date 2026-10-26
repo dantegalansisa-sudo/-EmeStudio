@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { byId, type Product } from './data/products';
+import { type Product } from './data/products';
+import { byId } from './data/catalog';
 
 interface Line {
   id: string;
@@ -29,7 +30,7 @@ const KEY = 'eme-cart';
 function readCart(): Line[] {
   try {
     const raw = localStorage.getItem(KEY);
-    return raw ? (JSON.parse(raw) as Line[]) : [];
+    return raw ? (JSON.parse(raw) as Line[]).filter((l) => byId(l.id)) : [];
   } catch {
     return [];
   }
