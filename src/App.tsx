@@ -3,7 +3,7 @@ import { AnimatePresence } from 'framer-motion';
 import { StoreProvider } from './store';
 import { lockScroll } from './utils';
 import { CustomCursor, SmoothScroll } from './components/ui';
-import { Announcement, Header, Preloader } from './components/Chrome';
+import { Header, Preloader } from './components/Chrome';
 import Hero from './components/Hero';
 import Manifesto from './components/Manifesto';
 import Collection from './components/Collection';
@@ -27,7 +27,6 @@ export default function App() {
       <CustomCursor />
       <AnimatePresence>{loading && <Preloader onDone={done} />}</AnimatePresence>
       <div className="grain" aria-hidden />
-      <Announcement />
       <Header />
       <main>
         <Hero ready={!loading} />

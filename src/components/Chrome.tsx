@@ -47,29 +47,6 @@ export function Preloader({ onDone }: { onDone: () => void }) {
   );
 }
 
-/* ---------- Barra de anuncios ---------- */
-export function Announcement() {
-  const items = [
-    `Envío gratis en órdenes de $${SITE.freeShippingThreshold}+`,
-    'Probado en la barbería',
-    'Nuevo · Curl Cream',
-    'Barber Stage · SJ Beauty Show · 8 & 9 Nov',
-  ];
-  const row = [...items, ...items, ...items];
-  return (
-    <div className="announce" role="note">
-      <div className="announce__track">
-        {row.map((t, i) => (
-          <span key={i}>
-            {t}
-            <i aria-hidden>✦</i>
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 /* ---------- Header ---------- */
 const NAV = [
   { id: 'coleccion', label: 'Tienda' },
@@ -79,7 +56,47 @@ const NAV = [
   { id: 'barberos', label: 'Barberos' },
 ];
 
+const LEFT = NAV.slice(0, 3);
+const RIGHT = NAV.slice(3);
+
+/* Sección visible ahora mismo, para marcar el link activo */
+function useActiveSection() {
+  const [active, setActive] = useState('');
+  useEffect(() => {
+    const els = NAV.map((n) => document.getElementById(n.id)).filter(Boolean) as HTMLElement[];
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) setActive(e.target.id);
+          else setActive((cur) => (cur === e.target.id ? '' : cur));
+        });
+      },
+      { rootMargin: '-45% 0px -45% 0px' },
+    );
+    els.forEach((el) => io.observe(el));
+    return () => io.disconnect();
+  }, []);
+  return active;
+}
+
+function NavLinks({ items, offset, active }: { items: typeof NAV; offset: number; active: string }) {
+  return (
+    <nav className="header__nav" aria-label="Principal">
+      {items.map((n, i) => (
+        <button key={n.id} onClick={() => scrollToId(n.id)} className={`header__link ${active === n.id ? 'is-active' : ''}`}>
+          {active === n.id && <motion.span layoutId="nav-pill" className="header__pill" transition={{ type: 'spring', stiffness: 380, damping: 32 }} />}
+          <sup className="mono">0{offset + i + 1}</sup>
+          <span className="roll">
+            <span data-text={n.label}>{n.label}</span>
+          </span>
+        </button>
+      ))}
+    </nav>
+  );
+}
+
 export function Header() {
+  const active = useActiveSection();
   const { count, setCartOpen, menuOpen, setMenuOpen, lastAdded } = useStore();
   const { scrollY } = useScroll();
   const [hidden, setHidden] = useState(false);
@@ -103,21 +120,19 @@ export function Header() {
         animate={{ y: hidden ? '-110%' : '0%' }}
         transition={{ duration: 0.45, ease: EASE.smooth }}
       >
-        <button className={`burger ${menuOpen ? 'is-open' : ''}`} onClick={() => setMenuOpen(!menuOpen)} aria-label="Abrir menú">
-          <span />
-          <span />
-        </button>
-        <nav className="header__nav" aria-label="Principal">
-          {NAV.map((n) => (
-            <button key={n.id} onClick={() => scrollToId(n.id)} className="header__link">
-              <span data-text={n.label}>{n.label}</span>
-            </button>
-          ))}
-        </nav>
+        <div className="header__left">
+          <button className={`burger ${menuOpen ? 'is-open' : ''}`} onClick={() => setMenuOpen(!menuOpen)} aria-label="Abrir menú">
+            <span />
+            <span />
+          </button>
+          <NavLinks items={LEFT} offset={0} active={active} />
+        </div>
         <button className="header__logo" onClick={() => (window.__lenis ? window.__lenis.scrollTo(0) : window.scrollTo({ top: 0, behavior: 'smooth' }))} aria-label="Inicio">
           <Logo />
         </button>
         <div className="header__right">
+          <NavLinks items={RIGHT} offset={LEFT.length} active={active} />
+          <span className="header__sep" aria-hidden />
           <a className="header__ig" href={SITE.instagram} target="_blank" rel="noreferrer" aria-label="Instagram">
             <Icon.Insta />
           </a>

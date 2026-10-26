@@ -24,7 +24,7 @@
   --serif: 'Instrument Serif', Georgia, serif;
 
   --gutter: 20px;
-  --ann-h: 34px;
+  --ann-h: 0px;
   --radius: 22px;
   --ease: cubic-bezier(0.76, 0, 0.24, 1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
@@ -460,42 +460,6 @@ html.has-cursor .cursor-ring {
 /* =========================================================
    ANNOUNCEMENT + HEADER
    ========================================================= */
-.announce {
-  position: relative;
-  z-index: 60;
-  height: var(--ann-h);
-  background: var(--cobalt);
-  color: #fff;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-}
-.announce__track {
-  display: flex;
-  white-space: nowrap;
-  animation: marquee 38s linear infinite;
-}
-.announce__track span {
-  display: inline-flex;
-  align-items: center;
-  gap: 22px;
-  padding-right: 22px;
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-.announce__track i {
-  font-style: normal;
-  opacity: 0.6;
-  font-size: 9px;
-}
-@keyframes marquee {
-  to {
-    transform: translateX(-33.333%);
-  }
-}
-
 .header {
   position: fixed;
   top: var(--ann-h);
@@ -595,42 +559,103 @@ html.has-cursor .cursor-ring {
   transform: translateY(-3.8px) rotate(-45deg);
 }
 
+.header__left {
+  justify-self: start;
+  display: flex;
+  align-items: center;
+}
+
 @media (min-width: 1000px) {
   .header {
-    height: 76px;
+    height: 88px;
+    padding: 0 var(--gutter);
   }
   .burger {
     display: none;
   }
   .header__nav {
     display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .header__right {
     gap: 6px;
   }
   .header__right .header__ig {
     display: grid;
   }
+  .header__sep {
+    width: 1px;
+    height: 22px;
+    margin: 0 10px;
+    background: rgba(255, 255, 255, 0.2);
+  }
   .header__logo .logo {
-    width: 104px;
+    width: 118px;
   }
   .header__link {
-    padding: 10px 12px;
-    font-size: 14px;
-    font-weight: 500;
-    overflow: hidden;
+    position: relative;
+    display: inline-flex;
+    align-items: flex-start;
+    gap: 5px;
+    padding: 12px 16px;
+    border-radius: 999px;
+    font-family: var(--display);
+    font-stretch: 75%;
+    font-weight: 700;
+    font-size: 19px;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: rgba(243, 242, 238, 0.86);
+    text-shadow: 0 1px 14px rgba(0, 0, 0, 0.35);
+    transition: color 0.35s;
   }
-  .header__link span {
+  .header__link sup {
+    position: relative;
+    font-size: 9px;
+    line-height: 1;
+    margin-top: 1px;
+    color: var(--electric);
+    text-shadow: none;
+    transition: color 0.35s;
+  }
+  .header__link:hover,
+  .header__link.is-active {
+    color: #fff;
+  }
+  .header__link.is-active sup {
+    color: #fff;
+  }
+  .header__pill {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--cobalt);
+    box-shadow: 0 8px 26px -8px rgba(30, 79, 216, 0.8);
+  }
+  /* Roll: el texto sube y entra su copia; la máscara oculta la copia en reposo */
+  .roll {
     position: relative;
     display: inline-block;
-    transition: transform 0.5s var(--ease);
+    height: 1.1em;
+    line-height: 1.1;
+    overflow: hidden;
   }
-  .header__link span::after {
+  .roll span {
+    display: block;
+    transition: transform 0.55s var(--ease);
+  }
+  .roll span::after {
     content: attr(data-text);
     position: absolute;
     left: 0;
     top: 100%;
     color: var(--electric);
   }
-  .header__link:hover span {
+  .header__link.is-active .roll span::after {
+    color: #fff;
+  }
+  .header__link:hover .roll span {
     transform: translateY(-100%);
   }
 }
