@@ -1,0 +1,9 @@
+node_modules
+dist
+*.local
+# raw client source media (optimized copies live in public/media)
+/*.jpg
+/*.png
+/*.mp4
+/*mp4
+.claude
