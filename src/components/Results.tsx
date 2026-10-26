@@ -80,7 +80,7 @@ export default function Results() {
             <p>Clientes reales, barberos reales. Toca un producto para ver cómo se logró cada look.</p>
           </FadeUp>
         </div>
-        <motion.div ref={track} className="results__track" style={desktop ? { x } : undefined} data-lenis-prevent-touch>
+        <motion.div ref={track} className="results__track" style={desktop ? { x } : undefined}>
           {REELS.map((r, i) => (
             <Reel key={r.src} r={r} i={i} />
           ))}

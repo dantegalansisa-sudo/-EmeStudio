@@ -1,10 +1,10 @@
 import { useCallback, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { StoreProvider } from './store';
-import { lockScroll } from './utils';
-import { CustomCursor, SmoothScroll } from './components/ui';
+import { lockScroll, useMedia } from './utils';
 import { Header, Preloader } from './components/Chrome';
 import Hero from './components/Hero';
+import MobileHero from './components/MobileHero';
 import Manifesto from './components/Manifesto';
 import Collection from './components/Collection';
 import Spotlight from './components/Spotlight';
@@ -16,6 +16,7 @@ import { CartDrawer, FloatingCart, ProductSheet } from './components/Overlays';
 
 export default function App() {
   const [loading, setLoading] = useState(true);
+  const mobile = useMedia('(max-width: 899px)');
   const done = useCallback(() => {
     setLoading(false);
     lockScroll(false);
@@ -23,13 +24,10 @@ export default function App() {
 
   return (
     <StoreProvider>
-      <SmoothScroll />
-      <CustomCursor />
       <AnimatePresence>{loading && <Preloader onDone={done} />}</AnimatePresence>
-      <div className="grain" aria-hidden />
       <Header />
       <main>
-        <Hero ready={!loading} />
+        {mobile ? <MobileHero ready={!loading} /> : <Hero ready={!loading} />}
         <Manifesto />
         <Collection />
         <Spotlight />

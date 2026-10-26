@@ -52,7 +52,6 @@ export function ProductSheet() {
             onDragEnd={(_, info) => {
               if (info.offset.y > 120 || info.velocity.y > 600) closeSheet();
             }}
-            data-lenis-prevent
           >
             <div className="sheet__grab" onPointerDown={(e) => drag.start(e)} />
             <button className="sheet__close" onClick={closeSheet} aria-label="Cerrar">
@@ -188,7 +187,6 @@ export function CartDrawer() {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ duration: 0.7, ease: EASE.premium }}
-            data-lenis-prevent
           >
             <div className="cart__head">
               <h2>

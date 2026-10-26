@@ -14,13 +14,13 @@ export function Preloader({ onDone }: { onDone: () => void }) {
     let raf = 0;
     const t0 = performance.now();
     const tick = (t: number) => {
-      const p = Math.min(1, (t - t0) / 1500);
+      const p = Math.min(1, (t - t0) / 1000);
       setN(Math.round(100 * (1 - Math.pow(1 - p, 3))));
       if (p < 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     // Temporizador independiente de rAF (pestañas en segundo plano no ejecutan rAF)
-    const done = setTimeout(onDone, 1750);
+    const done = setTimeout(onDone, 1150);
     return () => {
       cancelAnimationFrame(raf);
       clearTimeout(done);
@@ -127,7 +127,7 @@ export function Header() {
           </button>
           <NavLinks items={LEFT} offset={0} active={active} />
         </div>
-        <button className="header__logo" onClick={() => (window.__lenis ? window.__lenis.scrollTo(0) : window.scrollTo({ top: 0, behavior: 'smooth' }))} aria-label="Inicio">
+        <button className="header__logo" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Inicio">
           <Logo />
         </button>
         <div className="header__right">

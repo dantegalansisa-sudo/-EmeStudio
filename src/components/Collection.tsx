@@ -53,7 +53,7 @@ function Card({ p, i }: { p: Product; i: number }) {
       }}
       exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.3 } }}
       onClick={() => openSheet(p.id)}
-      data-cursor="Ver"
+     
     >
       <div className="card__media">
         <img src={p.images[0]} alt={p.name} loading="lazy" />
@@ -127,7 +127,7 @@ export default function Collection() {
           viewport={{ once: true, amount: 0.35 }}
           transition={{ duration: 1.2, ease: EASE.premium }}
         >
-          <div className="bundle__media" onClick={() => openSheet(kit.id)} data-cursor="Ver kit">
+          <div className="bundle__media" onClick={() => openSheet(kit.id)}>
             <img src={kit.images[0]} alt="Kit EME Completo con bolsa oficial" loading="lazy" />
           </div>
           <div className="bundle__body">

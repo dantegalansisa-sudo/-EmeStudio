@@ -101,7 +101,7 @@ export default function Finder() {
                   transition={{ duration: 0.6, ease: EASE.out }}
                 >
                   <span className="mono finder__q">Tu match</span>
-                  <div className="result__main" onClick={() => openSheet(rec.main)} data-cursor="Ver">
+                  <div className="result__main" onClick={() => openSheet(rec.main)}>
                     <motion.img
                       src={byId(rec.main).images[0]}
                       alt=""

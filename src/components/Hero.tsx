@@ -149,7 +149,7 @@ export default function Hero({ ready }: { ready: boolean }) {
         animate={ready ? { opacity: 1, y: 0, scale: 1 } : undefined}
         transition={{ delay: 1.4, duration: 0.9, ease: EASE.out }}
       >
-        <button className="hero__chip-main" onClick={() => openSheet(powder.id)} data-cursor="Ver">
+        <button className="hero__chip-main" onClick={() => openSheet(powder.id)}>
           <img src={powder.images[0]} alt="" />
           <span>
             <small className="mono">Bestseller</small>

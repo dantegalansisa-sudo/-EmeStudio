@@ -32,7 +32,7 @@ export default function Footer() {
                 href={SITE.instagram}
                 target="_blank"
                 rel="noreferrer"
-                data-cursor="IG"
+               
                 initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}

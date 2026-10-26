@@ -84,7 +84,7 @@ export default function Spotlight() {
                 exit={{ clipPath: 'inset(0% 0% 100% 0% round 24px)', scale: 0.96 }}
                 transition={{ duration: 0.9, ease: EASE.premium }}
                 onClick={() => openSheet(ch.id)}
-                data-cursor="Ver"
+               
               >
                 {ch.media.type === 'video' ? <AutoVideo src={ch.media.src} poster={ch.media.poster} /> : <img src={ch.media.src} alt={p.name} />}
                 <span className="spot__label mono">

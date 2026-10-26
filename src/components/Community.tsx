@@ -8,14 +8,13 @@ import { AutoVideo, Counter, FadeUp, Icon, Magnetic, RevealText } from './ui';
 export function Community() {
   const ref = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'center center'] });
-  const inset = useTransform(scrollYProgress, [0, 1], [12, 0]);
-  const radius = useTransform(scrollYProgress, [0, 1], [40, 0]);
-  const clip = useTransform([inset, radius], ([i, r]) => `inset(${i}% ${i}% ${i}% ${i}% round ${r}px)`);
-  const scale = useTransform(scrollYProgress, [0, 1], [1.25, 1]);
+  // Solo transforms (compositor): animar clip-path repintaba el video en cada frame
+  const frame = useTransform(scrollYProgress, [0, 1], [0.84, 1]);
+  const scale = useTransform(scrollYProgress, [0, 1], [1.2, 1]);
 
   return (
     <section className="community" ref={ref}>
-      <motion.div className="community__media" style={{ clipPath: clip }}>
+      <motion.div className="community__media" style={{ scale: frame }}>
         <motion.div style={{ scale }} className="community__video">
           <AutoVideo src="/media/v-5k.mp4" poster="/media/v-5k.webp" />
         </motion.div>

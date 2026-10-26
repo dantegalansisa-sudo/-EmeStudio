@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import type Lenis from 'lenis';
 
 export const EASE = {
   premium: [0.76, 0, 0.24, 1],
@@ -8,24 +7,13 @@ export const EASE = {
   cinematic: [0.86, 0, 0.07, 1],
 } as const;
 
-declare global {
-  interface Window {
-    __lenis?: Lenis;
-  }
-}
-
 export function scrollToId(id: string) {
   const el = document.getElementById(id);
   if (!el) return;
-  if (window.__lenis) window.__lenis.scrollTo(el, { offset: -60, duration: 1.4 });
-  else el.scrollIntoView({ behavior: 'smooth' });
+  window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 60, behavior: 'smooth' });
 }
 
 export function lockScroll(lock: boolean) {
-  if (window.__lenis) {
-    if (lock) window.__lenis.stop();
-    else window.__lenis.start();
-  }
   document.documentElement.classList.toggle('is-locked', lock);
 }
 
