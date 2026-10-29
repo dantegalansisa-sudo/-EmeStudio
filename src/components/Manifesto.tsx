@@ -1,9 +1,12 @@
+import { useLang } from '../i18n';
 import { useRef } from 'react';
 import { motion, useScroll, useTransform, type MotionValue } from 'framer-motion';
 import { EASE } from '../utils';
 
-const TEXT =
+const TEXT_ES =
   'Diseñado para crear. Probado en la barbería. Hecho para destacar. EME nace del sillón — de barberos que necesitaban productos que rindieran de verdad, para que el corte se vea igual de bien cuando sales que cuando te levantas.';
+const TEXT_EN =
+  'Designed to create. Tested in the barbershop. Made to stand out. EME was born in the barber chair — from barbers who needed products that truly perform, so your cut looks as good when you head out as when you get up.';
 
 function Word({ children, progress, range }: { children: string; progress: MotionValue<number>; range: [number, number] }) {
   const opacity = useTransform(progress, range, [0.14, 1]);
@@ -16,6 +19,8 @@ function Word({ children, progress, range }: { children: string; progress: Motio
 }
 
 export default function Manifesto() {
+  const { t, lang } = useLang();
+  const TEXT = lang === 'es' ? TEXT_ES : TEXT_EN;
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start 0.85', 'end 0.45'] });
   const words = TEXT.split(' ');
@@ -30,7 +35,7 @@ export default function Manifesto() {
       <div className="container">
         <div className="sec-label">
           <span className="mono">(01)</span>
-          <span className="mono">Manifiesto</span>
+          <span className="mono">{t('Manifiesto', 'Manifesto')}</span>
         </div>
         <div ref={ref} className="lit">
           {words.map((w, i) => {
@@ -46,38 +51,38 @@ export default function Manifesto() {
 
       <div className="manifesto__band" ref={band} aria-hidden>
         <motion.div className="manifesto__row" style={{ x: x1 }}>
-          <span>Define</span>
+          <span>{t('Define', 'Define')}</span>
           <i className="pill">
             <img src="/media/model-curls.webp" alt="" />
           </i>
-          <span>Texturiza</span>
+          <span>{t('Texturiza', 'Texture')}</span>
           <i className="pill">
             <img src="/media/powder-front.webp" alt="" />
           </i>
-          <span>Transforma</span>
+          <span>{t('Transforma', 'Transform')}</span>
           <i className="pill">
             <img src="/media/bball-1.webp" alt="" />
           </i>
         </motion.div>
         <motion.div className="manifesto__row manifesto__row--outline" style={{ x: x2 }}>
-          <span>Estilo</span>
+          <span>{t('Estilo', 'Style')}</span>
           <b>•</b>
-          <span>Precisión</span>
+          <span>{t('Precisión', 'Precision')}</span>
           <b>•</b>
-          <span>Rendimiento</span>
+          <span>{t('Rendimiento', 'Performance')}</span>
           <b>•</b>
-          <span>Estilo</span>
+          <span>{t('Estilo', 'Style')}</span>
         </motion.div>
       </div>
 
       <div className="container manifesto__facts">
         {[
-          ['Hecho en la barbería', 'Cada fórmula se prueba primero en el sillón, con clientes reales.'],
-          ['Cero relleno', 'Cuatro esenciales. Cada uno con un trabajo claro.'],
-          ['Para todo tipo de cabello', 'Lacio, ondulado o rizo: hay un EME para tu look.'],
-        ].map(([t, d], i) => (
+          [t('Hecho en la barbería', 'Made in the barbershop'), t('Cada fórmula se prueba primero en el sillón, con clientes reales.', 'Every formula is tested in the chair first, on real clients.')],
+          [t('Cero relleno', 'Zero filler'), t('Cuatro esenciales. Cada uno con un trabajo claro.', 'Four essentials. Each one with a clear job.')],
+          [t('Para todo tipo de cabello', 'For every hair type'), t('Lacio, ondulado o rizo: hay un EME para tu look.', 'Straight, wavy or curly: there’s an EME for your look.')],
+        ].map(([ti, d], i) => (
           <motion.div
-            key={t}
+            key={ti}
             className="fact"
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -85,7 +90,7 @@ export default function Manifesto() {
             transition={{ delay: i * 0.1, duration: 0.8, ease: EASE.out }}
           >
             <span className="mono">0{i + 1}</span>
-            <h3>{t}</h3>
+            <h3>{ti}</h3>
             <p>{d}</p>
           </motion.div>
         ))}

@@ -5,9 +5,12 @@ import { EASE, lockScroll, scrollToId } from '../utils';
 import { Icon, Logo } from './ui';
 import { ACTIVE_PROMOS, SHOP as PRODUCTS } from '../data/catalog';
 import { SITE, whatsappLink } from '../data/site';
+import { LangToggle, useLang } from '../i18n';
+import { goHome, useRoute } from '../router';
 
 /* ---------- Preloader ---------- */
 export function Preloader({ onDone }: { onDone: () => void }) {
+  const { t } = useLang();
   const [n, setN] = useState(0);
   useEffect(() => {
     lockScroll(true);
@@ -39,7 +42,7 @@ export function Preloader({ onDone }: { onDone: () => void }) {
         </motion.div>
       </div>
       <div className="preloader__foot">
-        <span>Eleva tu imagen</span>
+        <span>{t('Eleva tu imagen', 'Elevate your image')}</span>
         <span className="mono">{String(n).padStart(3, '0')}</span>
       </div>
       <motion.div className="preloader__bar" style={{ scaleX: n / 100 }} />
@@ -49,12 +52,12 @@ export function Preloader({ onDone }: { onDone: () => void }) {
 
 /* ---------- Header ---------- */
 const NAV = [
-  { id: 'especiales', label: 'Especiales', hot: true },
-  { id: 'coleccion', label: 'Tienda' },
-  { id: 'rutina', label: 'Rutina' },
-  { id: 'resultados', label: 'Resultados' },
-  { id: 'eventos', label: 'Eventos' },
-  { id: 'barberos', label: 'Barberos' },
+  { id: 'especiales', es: 'Especiales', en: 'Specials', hot: true },
+  { id: 'coleccion', es: 'Tienda', en: 'Shop' },
+  { id: 'rutina', es: 'Rutina', en: 'Routine' },
+  { id: 'resultados', es: 'Resultados', en: 'Results' },
+  { id: 'giveaway', es: 'Giveaway', en: 'Giveaway' },
+  { id: 'barberos', es: 'Barberos', en: 'Barbers' },
 ];
 
 const LEFT = NAV.slice(0, 3);
@@ -63,6 +66,7 @@ const RIGHT = NAV.slice(3);
 /* Sección visible ahora mismo, para marcar el link activo */
 function useActiveSection() {
   const [active, setActive] = useState('');
+  const route = useRoute();
   useEffect(() => {
     const els = NAV.map((n) => document.getElementById(n.id)).filter(Boolean) as HTMLElement[];
     const io = new IntersectionObserver(
@@ -76,11 +80,12 @@ function useActiveSection() {
     );
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, []);
+  }, [route.page]);
   return active;
 }
 
 function NavLinks({ items, offset, active }: { items: typeof NAV; offset: number; active: string }) {
+  const { t } = useLang();
   return (
     <nav className="header__nav" aria-label="Principal">
       {items.map((n, i) => (
@@ -88,7 +93,7 @@ function NavLinks({ items, offset, active }: { items: typeof NAV; offset: number
           {active === n.id && <motion.span layoutId="nav-pill" className="header__pill" transition={{ type: 'spring', stiffness: 380, damping: 32 }} />}
           <sup className="mono">0{offset + i + 1}</sup>
           <span className="roll">
-            <span data-text={n.label}>{n.label}</span>
+            <span data-text={t(n.es, n.en)}>{t(n.es, n.en)}</span>
           </span>
           {n.hot && ACTIVE_PROMOS.length > 0 && <b className="header__hot">{ACTIVE_PROMOS.length}</b>}
         </button>
@@ -100,6 +105,8 @@ function NavLinks({ items, offset, active }: { items: typeof NAV; offset: number
 export function Header() {
   const active = useActiveSection();
   const { count, setCartOpen, menuOpen, setMenuOpen, lastAdded } = useStore();
+  const { t } = useLang();
+  const route = useRoute();
   const { scrollY } = useScroll();
   const [hidden, setHidden] = useState(false);
   const [solid, setSolid] = useState(false);
@@ -118,27 +125,28 @@ export function Header() {
   return (
     <>
       <motion.header
-        className={`header ${solid ? 'header--solid' : ''}`}
+        className={`header ${solid || route.page !== 'home' ? 'header--solid' : ''}`}
         animate={{ y: hidden ? '-110%' : '0%' }}
         transition={{ duration: 0.45, ease: EASE.smooth }}
       >
         <div className="header__left">
-          <button className={`burger ${menuOpen ? 'is-open' : ''}`} onClick={() => setMenuOpen(!menuOpen)} aria-label="Abrir menú">
+          <button className={`burger ${menuOpen ? 'is-open' : ''}`} onClick={() => setMenuOpen(!menuOpen)} aria-label={t('Abrir menú', 'Open menu')}>
             <span />
             <span />
           </button>
           <NavLinks items={LEFT} offset={0} active={active} />
         </div>
-        <button className="header__logo" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} aria-label="Inicio">
+        <button className="header__logo" onClick={() => (window.location.hash.length > 2 ? goHome() : window.scrollTo({ top: 0, behavior: 'smooth' }))} aria-label={t('Inicio', 'Home')}>
           <Logo />
         </button>
         <div className="header__right">
           <NavLinks items={RIGHT} offset={LEFT.length} active={active} />
           <span className="header__sep" aria-hidden />
+          <LangToggle className="header__lang" />
           <a className="header__ig" href={SITE.instagram} target="_blank" rel="noreferrer" aria-label="Instagram">
             <Icon.Insta />
           </a>
-          <button className="header__cart" onClick={() => setCartOpen(true)} aria-label={`Carrito, ${count} productos`}>
+          <button className="header__cart" onClick={() => setCartOpen(true)} aria-label={t(`Bolsa, ${count} productos`, `Bag, ${count} items`)}>
             <Icon.Bag />
             <AnimatePresence mode="popLayout">
               {count > 0 && (
@@ -164,6 +172,7 @@ export function Header() {
 
 function MobileMenu() {
   const { menuOpen, setMenuOpen, openSheet } = useStore();
+  const { t } = useLang();
   useEffect(() => lockScroll(menuOpen), [menuOpen]);
   const go = (id: string) => {
     setMenuOpen(false);
@@ -190,8 +199,8 @@ function MobileMenu() {
                   transition={{ delay: 0.25 + i * 0.06, duration: 0.8, ease: EASE.premium }}
                 >
                   <span className="mono">0{i + 1}</span>
-                  {n.label}
-                  {n.hot && <em className="menu__hot mono">{ACTIVE_PROMOS.length} activos</em>}
+                  {t(n.es, n.en)}
+                  {n.hot && <em className="menu__hot mono">{ACTIVE_PROMOS.length} {t('activos', 'live')}</em>}
                 </motion.button>
               </li>
             ))}
@@ -205,16 +214,17 @@ function MobileMenu() {
                   openSheet(p.id);
                 }}
               >
-                <img src={p.images[0]} alt="" />
+                <img src={p.cutout ?? p.gallery[0]} alt="" />
                 <span>{p.short}</span>
               </button>
             ))}
           </motion.div>
           <motion.div className="menu__foot" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.75 }}>
+            <LangToggle />
             <a href={SITE.instagram} target="_blank" rel="noreferrer">
               <Icon.Insta /> {SITE.instagramHandle}
             </a>
-            <a href={whatsappLink('¡Hola EME STUDIO! Tengo una pregunta.')} target="_blank" rel="noreferrer">
+            <a href={whatsappLink(t('¡Hola EME STUDIO! Tengo una pregunta.', 'Hi EME STUDIO! I have a question.'))} target="_blank" rel="noreferrer">
               <Icon.WhatsApp /> WhatsApp
             </a>
           </motion.div>

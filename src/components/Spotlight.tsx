@@ -1,40 +1,51 @@
 import { useRef, useState } from 'react';
 import { AnimatePresence, motion, useMotionValueEvent, useScroll, useTransform } from 'framer-motion';
 import { byId } from '../data/catalog';
-import { money } from '../data/site';
+import { money, SEASON } from '../data/site';
+import { useLang } from '../i18n';
 import { useStore } from '../store';
 import { EASE } from '../utils';
 import { AutoVideo, Icon, Meter } from './ui';
 import { AddButton } from './Collection';
 
+// En temporada (Navidad) los capítulos toman rojo y verde pino
 const CHAPTERS = [
   {
     id: 'volume-powder',
-    kicker: 'Volumen',
-    title: 'Sube.',
-    line: 'Un toque en la raíz y el cabello gana cuerpo al instante. Acabado mate, cero peso.',
+    kicker: { es: 'Volumen', en: 'Volume' },
+    title: { es: 'Sube.', en: 'Lift.' },
+    line: {
+      es: 'Espolvorea en la raíz y el cabello gana volumen y textura al instante. Fijación fuerte, acabado mate.',
+      en: 'Sprinkle at the roots for instant volume and texture. Strong hold, matte finish.',
+    },
     media: { type: 'video' as const, src: '/media/v-powder-spin.mp4', poster: '/media/v-powder-spin.webp' },
-    bg: '#1B46C9',
-    fg: '#F4F6FF',
+    bg: SEASON ? SEASON.primary : '#1B46C9',
+    fg: '#FFFFFF',
     theme: 'dark',
   },
   {
     id: 'clay-wax',
-    kicker: 'Control',
-    title: 'Esculpe.',
-    line: 'Agarre firme y re-moldeable para texturas separadas que aguantan todo el día.',
+    kicker: { es: 'Control', en: 'Control' },
+    title: { es: 'Esculpe.', en: 'Sculpt.' },
+    line: {
+      es: 'Fijación extra fuerte que aumenta el grosor y aporta textura, con un acabado mate de aspecto natural.',
+      en: 'Extra-strong hold that builds thickness and texture, with a natural-looking matte finish.',
+    },
     media: { type: 'img' as const, src: '/media/clay-blueglove.webp' },
-    bg: '#14171D',
+    bg: SEASON ? SEASON.green : '#14171D',
     fg: '#F2F1EE',
     theme: 'dark',
   },
   {
     id: 'curl-cream',
-    kicker: 'Rizo',
-    title: 'Define.',
-    line: 'Hidrata, define y controla el frizz. Rizos con flow, sin quedar duros.',
+    kicker: { es: 'Rizo', en: 'Curl' },
+    title: { es: 'Define.', en: 'Define.' },
+    line: {
+      es: 'Realza los rizos, combate el frizz y deja un tacto sedoso con brillo. Sin enjuague.',
+      en: 'Enhances curls, fights frizz and leaves a silky, shiny feel. Leave-in.',
+    },
     media: { type: 'img' as const, src: '/media/model-curls.webp' },
-    bg: '#E6E8EB',
+    bg: '#EFEDE8',
     fg: '#0B0D12',
     theme: 'light',
   },
@@ -43,6 +54,7 @@ const CHAPTERS = [
 export default function Spotlight() {
   const ref = useRef<HTMLElement>(null);
   const { openSheet } = useStore();
+  const { t, l } = useLang();
   const [active, setActive] = useState(0);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] });
   const bg = useTransform(scrollYProgress, [0, 0.3, 0.4, 0.63, 0.73, 1], [CHAPTERS[0].bg, CHAPTERS[0].bg, CHAPTERS[1].bg, CHAPTERS[1].bg, CHAPTERS[2].bg, CHAPTERS[2].bg]);
@@ -62,12 +74,12 @@ export default function Spotlight() {
         <div className="spot__top container">
           <div className="sec-label">
             <span className="mono">(03)</span>
-            <span className="mono">La rutina EME</span>
+            <span className="mono">{t('La rutina EME', 'The EME routine')}</span>
           </div>
           <div className="spot__steps">
             {CHAPTERS.map((c, i) => (
               <span key={c.id} className={i === active ? 'is-active' : ''}>
-                <b className="mono">0{i + 1}</b> {c.kicker}
+                <b className="mono">0{i + 1}</b> {l(c.kicker)}
               </span>
             ))}
           </div>
@@ -109,7 +121,7 @@ export default function Spotlight() {
                     variants={{ hidden: { y: '105%' }, show: { y: 0 }, exit: { y: '-105%' } }}
                     transition={{ duration: 0.75, ease: EASE.premium }}
                   >
-                    {ch.title}
+                    {l(ch.title)}
                   </motion.h2>
                 </div>
                 <motion.p
@@ -117,15 +129,16 @@ export default function Spotlight() {
                   variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 }, exit: { opacity: 0, y: -10 } }}
                   transition={{ duration: 0.6, ease: EASE.out }}
                 >
-                  {ch.line}
+                  {l(ch.line)}
                 </motion.p>
                 <motion.div
                   className="spot__specs"
                   variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 }, exit: { opacity: 0 } }}
                   transition={{ duration: 0.6, ease: EASE.out }}
                 >
-                  <Meter label="Fijación" value={p.hold} dark={ch.theme === 'dark'} />
-                  <Meter label="Brillo" value={p.shine} dark={ch.theme === 'dark'} />
+                  {p.specs.map((sp) => (
+                    <Meter key={sp.label.es} label={l(sp.label)} value={sp.value} dark={ch.theme === 'dark'} />
+                  ))}
                 </motion.div>
                 <motion.div
                   className="spot__buy"
@@ -136,9 +149,9 @@ export default function Spotlight() {
                     <strong>{p.name}</strong>
                     <span>{money(p.price)}</span>
                   </div>
-                  <AddButton id={p.id} className="add--wide" label="Añadir" />
+                  <AddButton id={p.id} className="add--wide" label={t('Añadir', 'Add')} />
                   <button className="link-arrow" onClick={() => openSheet(p.id)}>
-                    Detalles <Icon.Arrow />
+                    {t('Detalles', 'Details')} <Icon.Arrow />
                   </button>
                 </motion.div>
               </motion.div>

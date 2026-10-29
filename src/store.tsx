@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { type Product } from './data/products';
-import { byId } from './data/catalog';
+import { exists, totals } from './data/catalog';
+import { navigate } from './router';
 
 interface Line {
   id: string;
@@ -13,14 +13,16 @@ interface Store {
   subtotal: number;
   add: (id: string, qty?: number) => void;
   setQty: (id: string, qty: number) => void;
+  clear: () => void;
   cartOpen: boolean;
   setCartOpen: (v: boolean) => void;
-  sheet: Product | null;
+  /** Abre la página del producto */
   openSheet: (id: string) => void;
-  closeSheet: () => void;
   menuOpen: boolean;
   setMenuOpen: (v: boolean) => void;
   lastAdded: number;
+  code: string | null;
+  setCode: (c: string | null) => void;
 }
 
 const Ctx = createContext<Store | null>(null);
@@ -30,7 +32,8 @@ const KEY = 'eme-cart';
 function readCart(): Line[] {
   try {
     const raw = localStorage.getItem(KEY);
-    return raw ? (JSON.parse(raw) as Line[]).filter((l) => byId(l.id)) : [];
+    // descarta productos de especiales que ya terminaron
+    return raw ? (JSON.parse(raw) as Line[]).filter((l) => exists(l.id)) : [];
   } catch {
     return [];
   }
@@ -39,9 +42,9 @@ function readCart(): Line[] {
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [lines, setLines] = useState<Line[]>(readCart);
   const [cartOpen, setCartOpen] = useState(false);
-  const [sheet, setSheet] = useState<Product | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [lastAdded, setLastAdded] = useState(0);
+  const [code, setCode] = useState<string | null>(null);
 
   useEffect(() => {
     try {
@@ -64,25 +67,29 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setLines((prev) => (qty <= 0 ? prev.filter((l) => l.id !== id) : prev.map((l) => (l.id === id ? { ...l, qty } : l))));
   }, []);
 
-  const value = useMemo<Store>(() => {
-    const count = lines.reduce((a, l) => a + l.qty, 0);
-    const subtotal = lines.reduce((a, l) => a + byId(l.id).price * l.qty, 0);
-    return {
+  const value = useMemo<Store>(
+    () => ({
       lines,
-      count,
-      subtotal,
+      count: lines.reduce((a, l) => a + l.qty, 0),
+      subtotal: totals(lines).subtotal,
       add,
       setQty,
+      clear: () => setLines([]),
       cartOpen,
       setCartOpen,
-      sheet,
-      openSheet: (id: string) => setSheet(byId(id)),
-      closeSheet: () => setSheet(null),
+      openSheet: (id: string) => {
+        setCartOpen(false);
+        setMenuOpen(false);
+        navigate(`/p/${id}`);
+      },
       menuOpen,
       setMenuOpen,
       lastAdded,
-    };
-  }, [lines, add, setQty, cartOpen, sheet, menuOpen, lastAdded]);
+      code,
+      setCode,
+    }),
+    [lines, add, setQty, cartOpen, menuOpen, lastAdded, code],
+  );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { EASE, scrollToId } from '../utils';
-import { Icon, Magnetic, RevealText } from './ui';
+import { Icon, Magnetic, RevealText, Snow } from './ui';
+import { useLang } from '../i18n';
+import { SEASON } from '../data/site';
 import { useStore } from '../store';
 import { FEATURED_PROMO, byId, promoProduct, savings } from '../data/catalog';
 import type { CSSProperties } from 'react';
@@ -80,6 +82,7 @@ function Dust() {
 export default function Hero({ ready }: { ready: boolean }) {
   const ref = useRef<HTMLElement>(null);
   const { add, openSheet } = useStore();
+  const { t, l } = useLang();
   const powder = byId('volume-powder');
   const promo = FEATURED_PROMO;
   const promoP = promo ? promoProduct(promo) : null;
@@ -99,7 +102,7 @@ export default function Hero({ ready }: { ready: boolean }) {
       >
         <motion.img src="/media/powder-spray.webp" alt="Volume Powder de EME STUDIO en acción" style={{ scale, y: imgY }} />
         <div className="hero__shade" />
-        <Dust />
+        {SEASON?.snow ? <Snow density={1.3} /> : <Dust />}
       </motion.div>
 
       <motion.div className="hero__content" style={{ y: contentY, opacity: fade }}>
@@ -113,7 +116,7 @@ export default function Hero({ ready }: { ready: boolean }) {
         </motion.p>
 
         <RevealText tag="h1" className="hero__title" start={ready} delay={0.45} stagger={0.08}>
-          {'Eleva\ntu imagen.'}
+          {t('Eleva\ntu imagen.', 'Elevate\nyour image.')}
         </RevealText>
 
         <div className="hero__bottom">
@@ -123,8 +126,8 @@ export default function Hero({ ready }: { ready: boolean }) {
             animate={ready ? { opacity: 1, y: 0 } : undefined}
             transition={{ delay: 1.05, duration: 0.9, ease: EASE.out }}
           >
-            Productos de styling creados en el sillón. Volumen, textura y rizo definido —{' '}
-            <em className="serif">sin complicarte.</em>
+            {t('Productos de styling creados en el sillón. Volumen, textura y rizo definido —', 'Styling products born in the barber chair. Volume, texture and defined curls —')}{' '}
+            <em className="serif">{t('sin complicarte.', 'no fuss.')}</em>
           </motion.p>
           <motion.div
             className="hero__ctas"
@@ -133,13 +136,13 @@ export default function Hero({ ready }: { ready: boolean }) {
             transition={{ delay: 1.2, duration: 0.9, ease: EASE.out }}
           >
             <Magnetic className="btn btn--light" onClick={() => scrollToId('coleccion')}>
-              Comprar ahora <Icon.Arrow />
+              {t('Comprar ahora', 'Shop now')} <Icon.Arrow />
             </Magnetic>
             <Magnetic className="btn btn--ghost" onClick={() => scrollToId('resultados')}>
               <span className="btn__play">
                 <Icon.Play />
               </span>
-              Ver en acción
+              {t('Ver en acción', 'See it in action')}
             </Magnetic>
           </motion.div>
         </div>
@@ -149,7 +152,7 @@ export default function Hero({ ready }: { ready: boolean }) {
       {promo && promoP ? (
         <motion.button
           className="hero__promo"
-          style={{ '--p-bg': promo.theme.bg, '--p-fg': promo.theme.fg, '--p-accent': promo.theme.accent } as CSSProperties}
+          style={{ '--p-bg': promo.theme.bg, '--p-fg': promo.theme.fg, '--p-accent': promo.theme.accent, '--p-accent-fg': promo.theme.accentFg } as CSSProperties}
           onClick={() => scrollToId('especiales')}
           initial={{ opacity: 0, y: 24, scale: 0.94 }}
           animate={ready ? { opacity: 1, y: 0, scale: 1 } : undefined}
@@ -158,9 +161,9 @@ export default function Hero({ ready }: { ready: boolean }) {
           <img src={promo.image} alt="" />
           <span>
             <small className="mono">
-              {promo.badge} · -{savings(promoP)}%
+              {l(promo.badge)} · -{savings(promoP)}%
             </small>
-            <strong>{promo.name}</strong>
+            <strong>{l(promo.name)}</strong>
             <em>
               {money(promoP.price)}
               <s>{money(promoP.compareAt!)}</s>
@@ -178,14 +181,14 @@ export default function Hero({ ready }: { ready: boolean }) {
           transition={{ delay: 1.4, duration: 0.9, ease: EASE.out }}
         >
           <button className="hero__chip-main" onClick={() => openSheet(powder.id)}>
-            <img src={powder.images[0]} alt="" />
+            <img src={powder.cutout ?? powder.studio} alt="" />
             <span>
               <small className="mono">Bestseller</small>
               <strong>{powder.name}</strong>
               <em>{money(powder.price)}</em>
             </span>
           </button>
-          <button className="hero__chip-add" onClick={() => add(powder.id)} aria-label="Añadir Volume Powder al carrito">
+          <button className="hero__chip-add" onClick={() => add(powder.id)} aria-label={t('Añadir Volume Powder a la bolsa', 'Add Volume Powder to bag')}>
             <Icon.Plus />
           </button>
         </motion.div>
@@ -204,7 +207,7 @@ export default function Hero({ ready }: { ready: boolean }) {
             <path id="seal" d="M60,60 m-46,0 a46,46 0 1,1 92,0 a46,46 0 1,1 -92,0" />
           </defs>
           <text>
-            <textPath href="#seal">PROBADO EN LA BARBERÍA • HECHO PARA DESTACAR • </textPath>
+            <textPath href="#seal">{t('PROBADO EN LA BARBERÍA • HECHO PARA DESTACAR • ', 'BARBER TESTED • MADE TO STAND OUT • ')}</textPath>
           </text>
         </svg>
         <span>E</span>

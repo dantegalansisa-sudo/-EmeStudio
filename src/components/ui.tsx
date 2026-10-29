@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode, type CSSProperties } from 'react';
+import { SEASON } from '../data/site';
 import { motion, useInView, useMotionValue, useSpring } from 'framer-motion';
 import { EASE } from '../utils';
 
@@ -166,6 +167,48 @@ export function Logo({ className = '', light = true }: { className?: string; lig
 
 /* ---------- Íconos ---------- */
 export const Icon = {
+  Home: () => (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M4 10.5 12 4l8 6.5V20a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1v-9.5Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+    </svg>
+  ),
+  Grid: () => (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <rect x="4" y="4" width="7" height="7" rx="2" stroke="currentColor" strokeWidth="1.6" />
+      <rect x="13" y="4" width="7" height="7" rx="2" stroke="currentColor" strokeWidth="1.6" />
+      <rect x="4" y="13" width="7" height="7" rx="2" stroke="currentColor" strokeWidth="1.6" />
+      <rect x="13" y="13" width="7" height="7" rx="2" stroke="currentColor" strokeWidth="1.6" />
+    </svg>
+  ),
+  Gift: () => (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <rect x="3.5" y="8.5" width="17" height="4" rx="1" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M5 12.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7.5M12 8.5V21M12 8.5S10.5 4 8 4.5 6.5 8.5 12 8.5ZM12 8.5S13.5 4 16 4.5s1.5 4-4 4Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+    </svg>
+  ),
+  Truck: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M3 6.5h11v10H3zM14 10h4l3 3.5v3h-7z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+      <circle cx="7" cy="17.5" r="1.8" stroke="currentColor" strokeWidth="1.6" />
+      <circle cx="17.5" cy="17.5" r="1.8" stroke="currentColor" strokeWidth="1.6" />
+    </svg>
+  ),
+  Shield: () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M12 3 5 6v5.5c0 4.4 3 8 7 9.5 4-1.5 7-5.1 7-9.5V6l-7-3Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+      <path d="m9 12 2.2 2.2L15.5 10" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  Back: () => (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M15 5l-7 7 7 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  Chevron: () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="m6 9 6 6 6-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
   Arrow: ({ className = '' }: { className?: string }) => (
     <svg className={className} width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
       <path d="M4 12L12 4M12 4H5.5M12 4V10.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
@@ -244,11 +287,101 @@ export function Meter({ label, value, dark = false }: { label: string; value: nu
           <motion.i
             key={i}
             initial={{ scaleY: 0.25, opacity: 0.25 }}
-            animate={{ scaleY: 1, opacity: i < value ? 1 : 0.18 }}
+            animate={{ scaleY: 1, opacity: i < Math.floor(value) ? 1 : i < value ? 0.5 : 0.18 }}
             transition={{ delay: 0.15 + i * 0.08, duration: 0.5, ease: EASE.out }}
           />
         ))}
       </span>
     </div>
+  );
+}
+
+/* ---------- Nieve navideña (canvas ligero, se pausa fuera de pantalla) ---------- */
+export function Snow({ density = 1, className = '' }: { density?: number; className?: string }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    if (!SEASON?.snow) return;
+    const c = ref.current!;
+    const ctx = c.getContext('2d')!;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const mobile = window.innerWidth < 768;
+    let w = 0,
+      h = 0,
+      raf = 0,
+      visible = true;
+    const n = Math.round((mobile ? 45 : 90) * density);
+    const flakes = Array.from({ length: n }, () => ({
+      x: Math.random(),
+      y: Math.random(),
+      r: Math.random() * 2.2 + 0.6,
+      v: Math.random() * 0.0011 + 0.0005,
+      d: Math.random() * Math.PI * 2,
+      a: Math.random() * 0.5 + 0.35,
+    }));
+    const size = () => {
+      w = c.clientWidth;
+      h = c.clientHeight;
+      c.width = w * dpr;
+      c.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    size();
+    const ro = new ResizeObserver(size);
+    ro.observe(c);
+    const io = new IntersectionObserver(([e]) => (visible = e.isIntersecting));
+    io.observe(c);
+    const draw = () => {
+      raf = requestAnimationFrame(draw);
+      if (!visible) return;
+      ctx.clearRect(0, 0, w, h);
+      for (const f of flakes) {
+        f.y += f.v * (1 + f.r * 0.3);
+        f.d += 0.01;
+        f.x += Math.sin(f.d) * 0.0006;
+        if (f.y > 1.02) {
+          f.y = -0.02;
+          f.x = Math.random();
+        }
+        ctx.beginPath();
+        ctx.fillStyle = `rgba(255,255,255,${f.a})`;
+        ctx.arc(f.x * w, f.y * h, f.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    };
+    draw();
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+      io.disconnect();
+    };
+  }, [density]);
+  if (!SEASON?.snow) return null;
+  return <canvas ref={ref} className={`snow ${className}`} aria-hidden />;
+}
+
+/* ---------- Guirnalda de luces navideñas ---------- */
+export function Garland({ count = 18 }: { count?: number }) {
+  if (!SEASON) return null;
+  return (
+    <div className="garland" aria-hidden>
+      <svg viewBox="0 0 1000 40" preserveAspectRatio="none">
+        <path d="M0 8 Q 50 34 100 8 T 200 8 T 300 8 T 400 8 T 500 8 T 600 8 T 700 8 T 800 8 T 900 8 T 1000 8" />
+      </svg>
+      {Array.from({ length: count }, (_, i) => (
+        <i key={i} style={{ left: `${(i + 0.5) * (100 / count)}%`, animationDelay: `${(i % 4) * 0.35}s` }} className={`bulb bulb--${i % 3}`} />
+      ))}
+    </div>
+  );
+}
+
+/* ---------- Estrellas (escala del cliente, admite medias) ---------- */
+export function Stars({ value }: { value: number }) {
+  return (
+    <span className="stars" aria-label={`${value} / 5`}>
+      {[0, 1, 2, 3, 4].map((i) => (
+        <i key={i} className={value >= i + 1 ? 'is-full' : value > i ? 'is-half' : ''} />
+      ))}
+    </span>
   );
 }

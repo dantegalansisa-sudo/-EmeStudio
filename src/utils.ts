@@ -9,7 +9,11 @@ export const EASE = {
 
 export function scrollToId(id: string) {
   const el = document.getElementById(id);
-  if (!el) return;
+  // fuera del inicio (producto, checkout, legal): vuelve al inicio en esa sección
+  if (!el) {
+    window.location.hash = `/${id}`;
+    return;
+  }
   window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - 60, behavior: 'smooth' });
 }
 
