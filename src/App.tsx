@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AnimatePresence } from 'framer-motion';
-import { StoreProvider } from './store';
+import { StoreProvider, useStore } from './store';
 import { LangProvider, useLang } from './i18n';
 import { useRoute } from './router';
 import { lockScroll, useMedia } from './utils';
@@ -18,7 +18,7 @@ import Results from './components/Results';
 import { Barbers, Community } from './components/Community';
 import Footer from './components/Footer';
 import ProductPage from './components/ProductPage';
-import Checkout from './components/Checkout';
+import Thanks from './components/Thanks';
 import Legal from './components/Legal';
 import { BottomBar, CartDrawer } from './components/Overlays';
 
@@ -57,9 +57,16 @@ function Shell() {
     lockScroll(false);
   }, []);
 
+  const { setCartOpen } = useStore();
+
   useEffect(() => {
     if (SEASON) document.documentElement.dataset.season = SEASON.id;
   }, []);
+
+  // /carrito (pago cancelado en Stripe): inicio con la bolsa abierta
+  useEffect(() => {
+    if (route.page === 'cart' && !loading) setCartOpen(true);
+  }, [route.page, loading, setCartOpen]);
 
   return (
     <>
@@ -67,10 +74,10 @@ function Shell() {
       <AnimatePresence>{loading && <Preloader onDone={done} />}</AnimatePresence>
       <Header />
       {route.page === 'product' && <ProductPage id={route.id} />}
-      {route.page === 'checkout' && <Checkout />}
+      {route.page === 'thanks' && <Thanks sessionId={route.sessionId} />}
       {route.page === 'legal' && <Legal doc={route.doc} />}
-      {route.page === 'home' && <Home ready={!loading} />}
-      {route.page !== 'checkout' && <Footer />}
+      {(route.page === 'home' || route.page === 'cart') && <Home ready={!loading} />}
+      {route.page !== 'thanks' && <Footer />}
       <CartDrawer />
       <BottomBar />
     </>

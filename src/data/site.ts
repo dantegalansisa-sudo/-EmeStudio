@@ -5,7 +5,7 @@ export const SITE = {
   // TODO: razón social exacta y dirección física (aparecen en Términos y Privacidad)
   legalName: 'EME STUDIO',
   address: 'Puerto Rico',
-  email: 'hola@eme-studio.com', // TODO: confirmar correo de servicio al cliente
+  email: 'hola@emestudiopr.com', // TODO: confirmar que este buzón exista
   instagram: 'https://www.instagram.com/emestudiopr/',
   instagramHandle: '@emestudiopr',
   // TODO: número de WhatsApp del cliente en formato internacional, sin "+" (ej. 17875551234)

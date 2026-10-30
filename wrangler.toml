@@ -1,0 +1,6 @@
+# Configuración de Cloudflare Pages (proyecto "emestudio").
+# Las variables secretas (STRIPE_SECRET_KEY) NO van aquí: se configuran en
+# Cloudflare → Pages → emestudio → Settings → Variables and Secrets.
+name = "emestudio"
+pages_build_output_dir = "./dist"
+compatibility_date = "2026-10-01"

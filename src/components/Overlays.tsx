@@ -7,41 +7,13 @@ import { useLang } from '../i18n';
 import { goHome, navigate, useRoute } from '../router';
 import { EASE, lockScroll, scrollToId } from '../utils';
 import { Icon } from './ui';
-
-/* ---------- Código de descuento ---------- */
-export function CodeField() {
-  const { code, setCode, lines } = useStore();
-  const { t, l } = useLang();
-  const [val, setVal] = useState(code ?? '');
-  const tt = totals(lines, code);
-  return (
-    <div className="code">
-      <form
-        className="code__row"
-        onSubmit={(e) => {
-          e.preventDefault();
-          setCode(val.trim() ? val.trim().toUpperCase() : null);
-        }}
-      >
-        <input value={val} onChange={(e) => setVal(e.target.value)} placeholder={t('Código de descuento', 'Discount code')} aria-label={t('Código de descuento', 'Discount code')} />
-        <button type="submit">{t('Aplicar', 'Apply')}</button>
-      </form>
-      {tt.code && (
-        <p className="code__ok">
-          <Icon.Check /> {tt.code.code} · {l(tt.code.label)} (-{tt.code.percentOff}%)
-          <button onClick={() => (setCode(null), setVal(''))}>{t('Quitar', 'Remove')}</button>
-        </p>
-      )}
-      {tt.codeInvalid && <p className="code__err">{t('Código no válido o no cumple el mínimo.', 'Invalid code or minimum not met.')}</p>}
-    </div>
-  );
-}
+import { startCheckout } from '../payments';
 
 /* ---------- Resumen: subtotal, descuento, envío, IVU, total ---------- */
 export function Summary({ pickup = false }: { pickup?: boolean }) {
-  const { lines, code } = useStore();
+  const { lines } = useStore();
   const { t } = useLang();
-  const tt = totals(lines, code, pickup);
+  const tt = totals(lines, null, pickup);
   return (
     <dl className="sum">
       <div>
@@ -74,9 +46,22 @@ export function Summary({ pickup = false }: { pickup?: boolean }) {
 
 /* ---------- Bolsa ---------- */
 export function CartDrawer() {
-  const { cartOpen, setCartOpen, lines, setQty, add, count, code } = useStore();
+  const { cartOpen, setCartOpen, lines, setQty, add, count } = useStore();
   const { t, lang } = useLang();
-  const tt = totals(lines, code);
+  const tt = totals(lines, null);
+  const [paying, setPaying] = useState(false);
+  const [payError, setPayError] = useState<string | null>(null);
+
+  const pay = async () => {
+    setPaying(true);
+    setPayError(null);
+    try {
+      await startCheckout(lines);
+    } catch (e) {
+      setPayError(e instanceof Error ? e.message : String(e));
+      setPaying(false);
+    }
+  };
   const goal = SITE.freeShippingThreshold;
   const left = Math.max(0, goal - tt.merch);
   const pct = Math.min(1, tt.merch / goal);
@@ -195,22 +180,38 @@ export function CartDrawer() {
                   </button>
                 </div>
               )}
-              {lines.length > 0 && <CodeField />}
             </div>
 
             {lines.length > 0 && (
               <div className="cart__foot">
                 <Summary />
-                <button
-                  className="btn btn--blue btn--block"
-                  onClick={() => {
-                    setCartOpen(false);
-                    navigate('/checkout');
-                  }}
-                >
-                  {t('Ir a pagar', 'Checkout')} · {money2(tt.total)} <Icon.Arrow />
+                <button className="btn btn--blue btn--block" onClick={pay} disabled={paying} aria-busy={paying}>
+                  {paying ? (
+                    <>
+                      <span className="spin" aria-hidden /> {t('Conectando con el pago seguro…', 'Opening secure checkout…')}
+                    </>
+                  ) : (
+                    <>
+                      <Icon.Shield /> {t('Pagar', 'Pay')} · {money2(tt.total)}
+                    </>
+                  )}
                 </button>
-                <p className="mono cart__note">{t('Envío o recogido · Confirmación por WhatsApp', 'Shipping or pickup · WhatsApp confirmation')}</p>
+                {payError && (
+                  <p className="pay__err" role="alert">
+                    {payError}
+                  </p>
+                )}
+                <p className="cart__terms">
+                  {t('Pago seguro con Stripe · Tarjeta, Apple Pay o Google Pay. Al pagar aceptas los ', 'Secure payment by Stripe · Card, Apple Pay or Google Pay. By paying you accept the ')}
+                  <button className="inline-link" onClick={() => (setCartOpen(false), navigate('/legal/terminos'))}>
+                    {t('Términos', 'Terms')}
+                  </button>
+                  {t(' y la ', ' and the ')}
+                  <button className="inline-link" onClick={() => (setCartOpen(false), navigate('/legal/privacidad'))}>
+                    {t('Política de privacidad', 'Privacy policy')}
+                  </button>
+                  .
+                </p>
               </div>
             )}
           </motion.aside>
@@ -230,7 +231,7 @@ export function BottomBar() {
   useEffect(() => {
     if (lastAdded) setBump((b) => b + 1);
   }, [lastAdded]);
-  if (route.page === 'checkout' || route.page === 'product') return null;
+  if (route.page === 'thanks' || route.page === 'product') return null;
 
   const items = [
     { id: 'inicio', es: 'Inicio', en: 'Home', icon: <Icon.Home />, go: () => (route.page === 'home' ? window.scrollTo({ top: 0, behavior: 'smooth' }) : goHome()) },

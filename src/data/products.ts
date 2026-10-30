@@ -1,6 +1,6 @@
 // Catálogo base de EME STUDIO (información oficial enviada por el cliente).
 // Cada campo de texto es bilingüe; en el panel serán dos campos (ES / EN).
-import type { L } from '../i18n';
+import type { L } from './types';
 
 export type Category = 'styling' | 'rizos' | 'herramientas' | 'kits';
 
@@ -18,6 +18,10 @@ export interface Product {
   tagline: L;
   description: L;
   size: string;
+  /** Precio en centavos USD: fuente de verdad (el backend de pago cobra este valor) */
+  priceCents: number;
+  compareAtCents?: number;
+  /** Derivados en catalog.ts (dólares) para mostrar en pantalla */
   price: number;
   compareAt?: number;
   category: Category;
@@ -47,7 +51,10 @@ const COSMETIC_WARNING: L = {
   en: 'For external use only. Avoid contact with eyes; if contact occurs, rinse thoroughly with water. Discontinue use if irritation occurs. Keep out of reach of children. We recommend a small patch test before first use.',
 };
 
-export const PRODUCTS: Product[] = [
+/** Producto tal como se edita aquí (los precios en dólares los calcula catalog.ts) */
+export type BaseProduct = Omit<Product, 'price' | 'compareAt'>;
+
+export const PRODUCTS: BaseProduct[] = [
   {
     id: 'volume-powder',
     name: 'Volume Powder',
@@ -59,7 +66,7 @@ export const PRODUCTS: Product[] = [
       en: 'A texturizing powder that delivers volume and strong hold from the roots. Big volume and texture with a matte, weightless finish.',
     },
     size: '20 g · 0.7 oz',
-    price: 12,
+    priceCents: 1200,
     category: 'styling',
     tag: { es: 'Bestseller', en: 'Bestseller' },
     finish: { es: 'Mate', en: 'Matte' },
@@ -104,7 +111,7 @@ export const PRODUCTS: Product[] = [
       en: 'A firm-texture clay wax that builds thickness and texture. Extra-strong hold with a medium-matte, natural-looking finish. Ideal for wavy hair.',
     },
     size: '80 g · 2.8 oz',
-    price: 10,
+    priceCents: 1000,
     category: 'styling',
     tag: { es: 'Favorito del barbero', en: "Barber's favorite" },
     finish: { es: 'Mate medio', en: 'Medium matte' },
@@ -147,7 +154,7 @@ export const PRODUCTS: Product[] = [
       en: 'An extra-control cream that enhances curls, fights frizz and protects hold. Leaves a silky feel with added softness and shine. Leave-in formula.',
     },
     size: '250 ml · 8.8 fl oz',
-    price: 12,
+    priceCents: 1200,
     category: 'rizos',
     tag: { es: 'Nuevo', en: 'New' },
     finish: { es: 'Natural con brillo', en: 'Natural with shine' },
@@ -189,7 +196,7 @@ export const PRODUCTS: Product[] = [
       en: 'A wide-tooth carbon fiber comb: antistatic and heat resistant. Designed for textured men’s styles without breaking definition.',
     },
     size: 'Carbon fiber',
-    price: 8,
+    priceCents: 800,
     category: 'herramientas',
     finish: { es: 'Fibra de carbono', en: 'Carbon fiber' },
     hold: 0,
@@ -222,8 +229,8 @@ export const PRODUCTS: Product[] = [
       en: '1 Curl Cream, 1 Volume Powder, 1 Clay Wax and 1 EME comb. Everything you need to take the barber-chair result into your daily routine.',
     },
     size: '4 productos · 4 products',
-    price: 35,
-    compareAt: 42,
+    priceCents: 3500,
+    compareAtCents: 4200,
     category: 'kits',
     tag: { es: 'Ahorra $7', en: 'Save $7' },
     finish: { es: 'Completo', en: 'Complete' },

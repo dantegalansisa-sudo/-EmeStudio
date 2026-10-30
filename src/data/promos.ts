@@ -2,7 +2,7 @@
 // Cada registro tiene la forma que tendrá en el panel de administración:
 // el equipo crea la campaña, elige productos del inventario, pone precio o %,
 // fechas, stock y colores, y la web la muestra sola (menú, hero, Especiales y tienda).
-import type { L } from '../i18n';
+import type { L } from './types';
 
 /** bundle: combinación de productos a precio especial (ej. 3 Clay Wax por $25)
  *  discount: % de descuento sobre un producto
@@ -33,7 +33,7 @@ export interface Promo {
   stock?: number;
   stockTotal?: number;
   items?: { id: string; qty: number }[];
-  price?: number;
+  priceCents?: number; // precio del bundle en centavos USD
   productId?: string;
   percentOff?: number;
 }
@@ -81,7 +81,7 @@ export const PROMOS: Promo[] = [
     stock: 40,
     stockTotal: 120,
     items: [{ id: 'clay-wax', qty: 3 }],
-    price: 25,
+    priceCents: 2500,
   },
   {
     id: '3-volume',
@@ -102,7 +102,7 @@ export const PROMOS: Promo[] = [
     stock: 30,
     stockTotal: 90,
     items: [{ id: 'volume-powder', qty: 3 }],
-    price: 30,
+    priceCents: 3000,
   },
   {
     id: 'madres-2027',

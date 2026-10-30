@@ -8,3 +8,7 @@ dist
 /*mp4
 .claude
 /New Contenido
+
+# Cloudflare / Stripe (claves locales)
+.dev.vars
+.wrangler

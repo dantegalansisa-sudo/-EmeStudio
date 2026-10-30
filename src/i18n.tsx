@@ -1,8 +1,8 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
 export type Lang = 'es' | 'en';
-/** Texto bilingüe. En el panel de administración serán dos campos por texto. */
-export type L = { es: string; en: string };
+import type { L } from './data/types';
+export type { L };
 
 interface LangCtx {
   lang: Lang;

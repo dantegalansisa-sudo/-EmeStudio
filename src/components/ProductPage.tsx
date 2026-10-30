@@ -8,6 +8,7 @@ import { useStore } from '../store';
 import { EASE } from '../utils';
 import { Icon, Stars } from './ui';
 import { AddButton, Stage } from './Collection';
+import { startCheckout } from '../payments';
 
 function Accordion({ title, children, open: initial = false }: { title: string; children: React.ReactNode; open?: boolean }) {
   const [open, setOpen] = useState(initial);
@@ -29,7 +30,7 @@ function Accordion({ title, children, open: initial = false }: { title: string; 
 }
 
 export default function ProductPage({ id }: { id: string }) {
-  const { add, setCartOpen } = useStore();
+  const { add, setCartOpen, lines } = useStore();
   const { t, l, lang } = useLang();
   const [qty, setQty] = useState(1);
   const [img, setImg] = useState(0);
@@ -72,9 +73,18 @@ export default function ProductPage({ id }: { id: string }) {
     add(p.id, qty);
     setCartOpen(true);
   };
-  const buyNow = () => {
+  // Comprar ahora: añade a la bolsa y abre el pago seguro con todo lo que haya en ella
+  const [paying, setPaying] = useState(false);
+  const buyNow = async () => {
     add(p.id, qty);
-    navigate('/checkout');
+    const merged = lines.some((l) => l.id === p.id) ? lines.map((l) => (l.id === p.id ? { ...l, qty: l.qty + qty } : l)) : [...lines, { id: p.id, qty }];
+    setPaying(true);
+    try {
+      await startCheckout(merged);
+    } catch {
+      setPaying(false);
+      setCartOpen(true);
+    }
   };
 
   return (
@@ -176,8 +186,8 @@ export default function ProductPage({ id }: { id: string }) {
               {t('Añadir a la bolsa', 'Add to bag')} · {money2(p.price * qty)}
             </button>
           </div>
-          <button className="btn btn--blue btn--block pdp__now" onClick={buyNow}>
-            {t('Comprar ahora', 'Buy now')} <Icon.Arrow />
+          <button className="btn btn--blue btn--block pdp__now" onClick={buyNow} disabled={paying} aria-busy={paying}>
+            {paying ? t('Abriendo pago seguro…', 'Opening secure checkout…') : t('Comprar ahora', 'Buy now')} <Icon.Arrow />
           </button>
 
           {offers.map((o) => (
