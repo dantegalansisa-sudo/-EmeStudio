@@ -1,6 +1,7 @@
 // Datos de negocio. Todo lo marcado TODO lo debe confirmar el cliente.
 export const SITE = {
   brand: 'EME STUDIO',
+  domain: 'https://emestudiopr.com',
   // TODO: razón social exacta y dirección física (aparecen en Términos y Privacidad)
   legalName: 'EME STUDIO',
   address: 'Puerto Rico',
